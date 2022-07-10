@@ -1,0 +1,9 @@
+[master]
+master-1 192.168.5.11 ansible_connection=ssh ansible_user=vagrant
+master-2 192.168.5.12 ansible_connection=ssh ansible_user=vagrant
+[worker]
+worker-1 192.168.5.21 ansible_connection=ssh ansible_user=vagrant
+worker-2 192.168.5.22 ansible_connection=ssh ansible_user=vagrant
+
+[local]
+localhost ansible_connection=localhost

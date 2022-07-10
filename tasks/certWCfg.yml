@@ -1,0 +1,26 @@
+---
+        - name: Create private key with password protection
+          openssl_privatekey:
+            path: "./{{ item  }}.key"
+        - name: Create certificate signing request (CSR) for CA certificate
+          openssl_csr:
+            privatekey_path: "./{{ item  }}.key"
+            common_name: Ansible CA
+            #use_common_name_for_san: false  # since we do not specify SANs, don't use CN as a SAN
+            basic_constraints:
+              - 'CA:FALSE'
+            basic_constraints_critical: yes
+            key_usage:
+              - keyCertSign
+            key_usage_critical: true
+            path: "./{{ item  }}.csr"
+          register: ca_csr
+        - name: Print all available facts
+          debug:
+                  var: ca_csr
+        - name: Generate a Self Signed OpenSSL certificate
+          openssl_certificate:
+            path: "./{{ item  }}.crt"
+            privatekey_path: "./{{ item  }}.key"
+            csr_path: "{{ ca_csr.filename  }}"
+            provider: selfsigned

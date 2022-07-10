@@ -1,0 +1,16 @@
+---
+        - name: Create private key with password protection
+          openssl_privatekey:
+            path: "../files/{{ item  }}.key"
+        - name: Create certificate signing request (CSR) for CA certificate
+          openssl_csr:
+            privatekey_path: "../files/{{ item  }}.key"
+            path: "../files/{{ item  }}.csr"
+            common_name: "system{{ item }}"
+          register: ca_csr
+        - name: Generate a Self Signed OpenSSL certificate
+          openssl_certificate:
+            path: "../files/{{ item  }}.crt"
+            privatekey_path: "../files/ca.key"
+            csr_path: "../files/{{ ca_csr.filename  }}"
+            provider: selfsigned
