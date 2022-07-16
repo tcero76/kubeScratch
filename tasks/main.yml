@@ -7,19 +7,20 @@
                 - name: certificados
                   include_tasks: ./cert.yml
                   with_items:
-                        - "ca" 
-                        - "admin"
-                        - "kube-controller-manager"
-                        - "kube-proxy"
-                        - "kube-scheduler"
-                - name: cfg files kube-apiserver
-                  template:
-                          src: ../templates/openssl.cnf
-                          dest: ../files/openssl.cnf
-                - name: cfg file etcd
-                  template: 
-                        src: ../templates/openssl-etcd.cnf
-                        dest: ../files/openssl-etcd.cnf
+                        - {name: "ca" , common_name: "KUBERNETES-CA",organization_name: ""}
+                        - {name: "cdmin", common_name: "admin", organization_name: "system:masters"}
+                        - {name: "cube-controller-manager", common_name: "system:kube-controller-manager",organization_name: ""}
+                        - {name: "cube-proxy",common_name: "system:kube-proxy",organization_name: ""}
+                        - {name: "cube-scheduler",common_name: "system:kube-scheduler",organization_name: ""}
+
+                          #                - name: cfg files kube-apiserver
+                          #                  template:
+                          #                          src: ../templates/openssl.cnf
+                          #                          dest: ../files/openssl.cnf
+                          #                - name: cfg file etcd
+                          #                  template: 
+                          #                        src: ../templates/openssl-etcd.cnf
+                          #                        dest: ../files/openssl-etcd.cnf
                         #                 - name: certificados
                         #                  include_tasks: ./certWCfg.yml
                         #                  with_items:

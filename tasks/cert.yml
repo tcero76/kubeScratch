@@ -1,16 +1,20 @@
 ---
         - name: Create private key with password protection
           openssl_privatekey:
-            path: "../files/{{ item  }}.key"
+            size: 2048
+            path: "../files/{{ item.name  }}.key"
         - name: Create certificate signing request (CSR) for CA certificate
           openssl_csr:
-            privatekey_path: "../files/{{ item  }}.key"
-            path: "../files/{{ item  }}.csr"
-            common_name: "system{{ item }}"
+            privatekey_path: "../files/{{ item.name  }}.key"
+            path: "../files/{{ item.name  }}.csr"
+            common_name: "{{ item.common_name }}"
+            organization_name: "{{ item.organization_name }}"
           register: ca_csr
         - name: Generate a Self Signed OpenSSL certificate
           openssl_certificate:
-            path: "../files/{{ item  }}.crt"
+            path: "../files/{{ item.name  }}.crt"
             privatekey_path: "../files/ca.key"
             csr_path: "../files/{{ ca_csr.filename  }}"
-            provider: selfsigned
+            ownca_path: /etc/ssl/crt/ansible_CA.crt
+            ownca_privatekey_path: /etc/ssl/private/ansible_CA.pem
+
