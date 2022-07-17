@@ -1,18 +1,18 @@
 ---
 # tasks file for kubeScratch
--
-        name: Crear certificado.
-        hosts: localhost
-        tasks:
-                - name: certificados
-                  include_tasks: ./cert.yml
-                  with_items:
-                        - {name: "ca" , common_name: "KUBERNETES-CA",organization_name: ""}
-                        - {name: "cdmin", common_name: "admin", organization_name: "system:masters"}
-                        - {name: "cube-controller-manager", common_name: "system:kube-controller-manager",organization_name: ""}
-                        - {name: "cube-proxy",common_name: "system:kube-proxy",organization_name: ""}
-                        - {name: "cube-scheduler",common_name: "system:kube-scheduler",organization_name: ""}
-
+#-
+#        name: Crear certificado.
+#        hosts: localhost
+#        tasks:
+#                - name: certificados
+#                  include_tasks: ./cert.yml
+#                  with_items:
+#                        - {name: "ca" , common_name: "KUBERNETES-CA",organization_name: ""}
+#                        - {name: "cdmin", common_name: "admin", organization_name: "system:masters"}
+#                        - {name: "cube-controller-manager", common_name: "system:kube-controller-manager",organization_name: ""}
+#                        - {name: "cube-proxy",common_name: "system:kube-proxy",organization_name: ""}
+#                        - {name: "cube-scheduler",common_name: "system:kube-scheduler",organization_name: ""}
+#
                           #                - name: cfg files kube-apiserver
                           #                  template:
                           #                          src: ../templates/openssl.cnf
@@ -26,3 +26,37 @@
                         #                  with_items:
                         #                        - "kube-apiserver" 
                         #                        - "etcd-server"
+- hosts: localhost
+  tasks:
+  - name: Generate new password
+    shell: "head -c 32 /dev/urandom | base64"
+    register: new_password    
+  - name: Set password as fact
+    set_fact:
+      my_global_var: "{{ new_password.stdout }}"
+
+- hosts: localhost
+  tasks:
+  - debug: msg={{my_global_var}}
+
+- hosts: localhost
+  tasks:
+  - debug: msg={{my_global_var}}
+- hosts: localhost
+  remote_user: ubuntu   # Using Remote host as ubuntu 
+  tasks: 
+   - name: Create the app.conf configuration file
+     template:
+       src: "../templates/encryption-config.j2"
+       dest: "../files/encryption-config.conf"
+     vars: 
+        encryptfile: "{{ my_global_var }}"
+     become: true 
+
+   - name: Download file and force basic auth
+     get_url:
+       url: https://storage.googleapis.com/kubernetes-release/release/v1.13.0/bin/linux/amd64/kubectl
+       dest: ../files/kubectl
+       mode: u+x
+   - name: Move kubectl
+     files
